@@ -1,252 +1,135 @@
 name: Bayesian Clinical Trial CI/CD
 
-
 on:
-
   push:
-
     branches: [ main, dev ]
-
   pull_request:
-
     branches: [ main ]
 
-
 env:
-
   R_VERSION: '4.1.0'
-
   DOCKER_IMAGE: 'bayesian-clinical-trial'
-
   DOCKER_TAG: latest
 
-
 jobs:
-
   test:
-
     name: Test and Validate
-
-    runs-on: ubuntu-22.04  # Using LTS version for stability
-
-    
-
-    steps:
-
-      - uses: actions/checkout@v4
-
-
-      - name: Set up R
-
-        uses: r-lib/actions/setup-r@v2
-
-        with:
-
-          r-version: ${{ env.R_VERSION }}
-
-          use-public-rspm: true
-
-
-      - name: Install system dependencies
-
-        run: |
-
-          sudo apt-get update -qq
-
-          sudo apt-get install -y --no-install-recommends \
-
-            libcurl4-openssl-dev \
-
-            libssl-dev \
-
-            libxml2-dev \
-
-            pandoc \
-
-            texlive-latex-base \
-
-            texlive-fonts-recommended \
-
-            texlive-latex-extra
-
-
-      - name: Cache R packages
-
-        uses: actions/cache@v3
-
-        with:
-
-          path: |
-
-            ~/.local/share/renv
-
-            ~/.R/Makevars
-
-            ~/.Renviron
-
-            ~/.Rprofile
-
-          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
-
-          restore-keys: |
-
-            ${{ runner.os }}-renv-
-
-
-      - name: Install R dependencies
-
-        run: |
-
-          Rscript -e 'install.packages(c("renv", "testthat"))'
-
-          Rscript -e 'renv::restore()'
-
-
-      - name: Run tests
-
-        run: |
-
-          mkdir -p test_outputs
-
-          Rscript -e 'testthat::test_dir("tests/", stop_on_failure = TRUE)'
-
-
-      - name: Validate models
-
-        run: |
-
-          Rscript scripts/validate_models.R
-
-          mkdir -p test_outputs
-
-          cp validation_results.csv validation_plot.png test_outputs/
-
-
-      - name: Upload test results
-
-        uses: actions/upload-artifact@v4  # Updated to the latest version
-
-        if: always()
-
-        with:
-
-          name: test-results
-
-          path: |
-
-            test_outputs/
-
-            !test_outputs/**/*.pdf
-
-
-  build-and-push:
-
-    name: Build and Push Docker Image
-
-    needs: test
-
     runs-on: ubuntu-22.04
 
-    if: github.ref == 'refs/heads/main'
-
-    
-
     steps:
-
-      - uses: actions/checkout@v4
-
-
-      - name: Set up QEMU
-
-        uses: docker/setup-qemu-action@v2
-
-
-      - name: Set up Docker Buildx
-
-        uses: docker/setup-buildx-action@v2
-
-
-      - name: Login to Docker Hub
-
-        uses: docker/login-action@v2
-
-        with:
-
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-
-      - name: Build and push Docker image
-
-        uses: docker/build-push-action@v4
-
-        with:
-
-          context: .
-
-          platforms: linux/amd64,linux/arm64
-
-          push: true
-
-          tags: |
-
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:sha-${{ github.sha }}
-
-          build-args: |
-
-            R_VERSION=${{ env.R_VERSION }}
-
-
-  deploy:
-
-    name: Deploy to Production
-
-    needs: build-and-push
-
-    runs-on: ubuntu-22.04
-
-    if: github.ref == 'refs/heads/main'
-
-    
-
-    steps:
-
       - name: Checkout code
-
         uses: actions/checkout@v4
 
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ env.R_VERSION }}
+          use-public-rspm: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev \
+            libssl-dev \
+            libxml2-dev \
+            pandoc \
+            texlive-latex-base \
+            texlive-fonts-recommended \
+            texlive-latex-extra
+
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.local/share/renv
+            ~/.R/Makevars
+            ~/.Renviron
+            ~/.Rprofile
+          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+
+      - name: Install R dependencies
+        run: |
+          Rscript -e 'install.packages(c("renv", "testthat"))'
+          Rscript -e 'renv::restore()'
+
+      - name: Run unit tests
+        run: |
+          mkdir -p test_outputs
+          Rscript -e 'testthat::test_dir("tests/", stop_on_failure = TRUE)'
+
+      - name: Validate models
+        run: |
+          mkdir -p test_outputs
+          Rscript scripts/validate_models.R
+          cp validation_results.csv validation_plot.png test_outputs/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3.1.0
+        if: always()
+        with:
+          name: test-results
+          path: |
+            test_outputs/
+            !test_outputs/**/*.pdf
+
+  build-and-push:
+    name: Build and Push Docker Image
+    needs: test
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:sha-${{ github.sha }}
+          build-args: |
+            R_VERSION=${{ env.R_VERSION }}
+
+  deploy:
+    name: Deploy to Production
+    needs: build-and-push
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main' && env.KUBE_CONFIG != ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install kubectl
-
-        if: env.KUBE_CONFIG != ''
-
         uses: azure/setup-kubectl@v3
 
-
       - name: Configure kubectl
-
-        if: env.KUBE_CONFIG != ''
-
         run: |
-
           mkdir -p ~/.kube
-
           echo "$KUBE_CONFIG" > ~/.kube/config
-
           chmod 600 ~/.kube/config
 
-
       - name: Deploy to Kubernetes
-
-        if: env.KUBE_CONFIG != ''
-
         run: |
-
           kubectl apply -f k8s/deployment.yaml --namespace=bayesian-trials
-
           kubectl rollout status deployment/bayesian-clinical-trial --namespace=bayesian-trials
-
           kubectl get pods -n bayesian-trials
