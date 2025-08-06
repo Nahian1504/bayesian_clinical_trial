@@ -14,7 +14,7 @@ on:
 
 env:
 
-  R_VERSION: '4.1.0'  # Matches your Dockerfile
+  R_VERSION: '4.1.0'
 
   DOCKER_IMAGE: 'bayesian-clinical-trial'
 
@@ -27,7 +27,7 @@ jobs:
 
     name: Test and Validate
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Using LTS version for stability
 
     
 
@@ -51,9 +51,9 @@ jobs:
 
         run: |
 
-          sudo apt-get update
+          sudo apt-get update -qq
 
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
 
             libcurl4-openssl-dev \
 
@@ -63,7 +63,34 @@ jobs:
 
             pandoc \
 
-            texlive-latex-base
+            texlive-latex-base \
+
+            texlive-fonts-recommended \
+
+            texlive-latex-extra
+
+
+      - name: Cache R packages
+
+        uses: actions/cache@v3
+
+        with:
+
+          path: |
+
+            ~/.local/share/renv
+
+            ~/.R/Makevars
+
+            ~/.Renviron
+
+            ~/.Rprofile
+
+          key: ${{ runner.os }}-renv-${{ hashFiles('renv.lock') }}
+
+          restore-keys: |
+
+            ${{ runner.os }}-renv-
 
 
       - name: Install R dependencies
@@ -79,17 +106,25 @@ jobs:
 
         run: |
 
-          Rscript -e 'testthat::test_dir("tests/")'
+          mkdir -p test_outputs
+
+          Rscript -e 'testthat::test_dir("tests/", stop_on_failure = TRUE)'
 
 
       - name: Validate models
 
-        run: Rscript scripts/validate_models.R
+        run: |
+
+          Rscript scripts/validate_models.R
+
+          mkdir -p test_outputs
+
+          cp validation_results.csv validation_plot.png test_outputs/
 
 
       - name: Upload test results
 
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
 
         if: always()
 
@@ -101,9 +136,7 @@ jobs:
 
             test_outputs/
 
-            validation_results.csv
-
-            validation_plot.png
+            !test_outputs/**/*.pdf
 
 
   build-and-push:
@@ -112,7 +145,7 @@ jobs:
 
     needs: test
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     if: github.ref == 'refs/heads/main'
 
@@ -121,6 +154,11 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
+
+
+      - name: Set up QEMU
+
+        uses: docker/setup-qemu-action@v2
 
 
       - name: Set up Docker Buildx
@@ -145,9 +183,17 @@ jobs:
 
         with:
 
+          context: .
+
+          platforms: linux/amd64,linux/arm64
+
           push: true
 
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+          tags: |
+
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:sha-${{ github.sha }}
 
           build-args: |
 
@@ -160,7 +206,7 @@ jobs:
 
     needs: build-and-push
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     if: github.ref == 'refs/heads/main'
 
@@ -175,19 +221,32 @@ jobs:
 
       - name: Install kubectl
 
+        if: env.KUBE_CONFIG != ''
+
         uses: azure/setup-kubectl@v3
 
+
+      - name: Configure kubectl
+
         if: env.KUBE_CONFIG != ''
+
+        run: |
+
+          mkdir -p ~/.kube
+
+          echo "$KUBE_CONFIG" > ~/.kube/config
+
+          chmod 600 ~/.kube/config
 
 
       - name: Deploy to Kubernetes
 
-        env:
-
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        if: env.KUBE_CONFIG != ''
 
         run: |
 
-          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/deployment.yaml --namespace=bayesian-trials
 
-          kubectl rollout status deployment/bayesian-clinical-trial
+          kubectl rollout status deployment/bayesian-clinical-trial --namespace=bayesian-trials
+
+          kubectl get pods -n bayesian-trials
