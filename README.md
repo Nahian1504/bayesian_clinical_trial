@@ -21,11 +21,14 @@ The 'real_clinical_trial.csv' dataset undergoes the following cleaning and prepa
 - Convert categorical columns to factors
 - Split into training and test sets (80/20 split)
 - Save cleaned datasets
+---
 
 ## 🔍 Exploratory Data Analysis
 ![Exploratory Data Analysis](eda/visuals/pairwise_scatter_plots.png)
 ![Exploratory Data Analysis](eda/visuals/histogram_radius_mean.png)
 ![Exploratory Data Analysis](eda/visuals/boxplot_area_mean.png)
+
+---
 
 ## 📊 Modeling & Analysis
 - frequentist_model.R: Logistic regression 
@@ -34,14 +37,20 @@ The 'real_clinical_trial.csv' dataset undergoes the following cleaning and prepa
 - adaptive_designs/: Implements Bayesian adaptive trials and stopping rules
 ![Model Comparison](modeling/model_comparison_plot.png)
 
+---
+
 ## 🧪 Testing
 The tests/ directory includes:
 - Data quality checks
 - Validation of models using test data
 
+---
+
 ## 📊 Results & Visuals
 ### Model accuracy comparion
 ![Model Accuracy Comparison](tests/accuracy_plot.png)
+
+---
 
 ## 📑 Reporting
 
@@ -50,6 +59,8 @@ The project includes industry-style reporting:
 - clinical_summary.qmd: Lightweight summary using Quarto
 - sap.md: Statistical Analysis Plan
 
+---
+
 ## ⚡ Quick Start
 
 Clone the repository:
@@ -57,11 +68,14 @@ Clone the repository:
 - cd bayesian_clinical_trial
 - Restore R environment:
 - Rscript -e 'install.packages("renv"); renv::restore()'
+---
 
 ## 🐳 Reproducibility
 - All packages and environments managed via renv.lock and requirements.txt
 - Optional Dockerfile included for containerized runs
 - GitHub Actions CI setup via .github/workflows/r-ci.yml
+
+---
 
 ## 👤 Author
 
@@ -69,5 +83,9 @@ Nahian Tasnim
 Data Science Portfolio Project — Bayesian Clinical Trial
 GitHub: @Nahian1504
 
+---
+
 ## 📄 License
 MIT License © 2025
+
+---
