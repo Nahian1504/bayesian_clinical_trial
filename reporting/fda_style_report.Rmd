@@ -1,0 +1,142 @@
+---
+
+title: "Bayesian Clinical Trial Report"
+
+author: "Nahian Tasnim"
+
+date: "`r Sys.Date()`"
+
+output: word_document
+
+---
+
+
+# Introduction
+
+
+This report presents the results of a Bayesian clinical trial analysis comparing the frequentist and Bayesian models. The analysis aims to evaluate the effectiveness of the treatment based on clinical trial data.
+
+
+# Methods
+
+
+## Data Loading
+
+
+The models used in this analysis are loaded from saved RDS files. The frequentist model is fitted using logistic regression, while the Bayesian model is fitted using a Bayesian approach.
+
+
+```{r setup, include=FALSE}
+
+# Load necessary libraries
+
+library(gt)
+
+library(gtsummary)
+
+library(brms)  
+
+library(knitr)  
+
+# Load the freq model with error handling
+
+if (file.exists("E:/bayesian_clinical_trial/modeling/frequentist_model.rds")) {
+
+  freq_model <- readRDS("E:/bayesian_clinical_trial/modeling/frequentist_model.rds")
+
+} else {
+
+  stop("The file 'frequentist_model.rds' does not exist.")
+
+}
+
+
+# Load the Bayesian model with error handling
+
+if (file.exists("E:/bayesian_clinical_trial/modeling/bayesian_model.rds")) {
+
+  bayes_model <- readRDS("E:/bayesian_clinical_trial/modeling/bayesian_model.rds")
+
+} else {
+
+  stop("The file 'bayesian_model.rds' does not exist.")
+
+}
+
+```
+
+# Model Summaries
+
+## Frequentist Model Summary
+
+```{r freq_summary, echo=FALSE}
+cat(readLines("E:/bayesian_clinical_trial/reporting/frequentist_model_summary.txt"), sep = "\n")
+```
+
+
+## Bayesian Model Summary
+
+```{r bayes_summary, echo=FALSE}
+cat(readLines("E:/bayesian_clinical_trial/reporting/bayesian_model_summary.txt"), sep = "\n")
+
+```
+
+
+# Results
+
+## Model Comparison
+
+```{r model-comparison, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/modeling/model_comparison_plot.png")
+
+```
+
+
+## Sensitivity Analysis
+
+```{r sensitivity-analysis, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/modeling/sensitivity_analysis/sensitivity_analysis_plot.png")
+```
+
+
+## Adaptive Analysis
+
+```{r adaptive-analysis, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/modeling/adaptive_designs/Rplot.png")
+```
+
+
+## Diagnostics
+
+```{r diagnostics, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/modeling/diagnostics/pp_checks.png")
+```
+
+
+## Exploratory Data Analysis (EDA)
+
+```{r eda-plot1, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/eda/visuals/pairwise_scatter_plots.png")
+```
+
+
+```{r eda-plot2, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/eda/visuals/histogram_radius_mean.png")
+```
+
+
+```{r eda-plot3, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/eda/visuals/boxplot_area_mean.png")
+```
+
+## Test Accuracy Comparison
+
+```{r test_accuracy, echo=FALSE}
+knitr::include_graphics("E:/bayesian_clinical_trial/tests/accuracy_plot.png")
+```
+
+
+# Conclusion
+
+In this report, we presented the results of the frequentist and Bayesian models. The comparison of the coefficients provides insights into the effectiveness of the treatment. Further analysis and validation are recommended to confirm these findings.
+

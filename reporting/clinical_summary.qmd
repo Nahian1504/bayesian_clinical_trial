@@ -1,0 +1,37 @@
+```yaml
+
+---
+
+title: "Clinical Trial Dashboard"
+
+format: html
+
+---
+
+
+## Posterior Summary
+
+
+```{r}
+
+library(brms)
+
+
+# Load the Bayesian model
+
+bayes_model <- readRDS("modeling/bayesian_model.rds")
+
+
+# Plot the posterior distributions
+
+plot(bayes_model)
+
+
+# Load the frequentist model
+
+freq_model <- readRDS("modeling/frequentist_model.rds")
+
+
+# Display the regression table for the frequentist model
+
+tbl_regression(freq_model)

@@ -1,0 +1,44 @@
+
+Call:
+glm(formula = diagnosis ~ radius_mean + texture_mean + perimeter_mean + 
+    area_mean + smoothness_mean + compactness_mean + concavity_mean + 
+    concave_points_mean + symmetry_mean + fractal_dimension_mean, 
+    family = binomial, data = df_clean)
+
+Coefficients:
+                        Estimate Std. Error
+(Intercept)             -8.33989   14.53963
+radius_mean             -0.74102    3.99281
+texture_mean             0.38856    0.07353
+perimeter_mean          -0.27927    0.54268
+area_mean                0.04017    0.01952
+smoothness_mean         72.05652   34.28104
+compactness_mean        -1.35444   21.46859
+concavity_mean           6.66079    8.45374
+concave_points_mean     74.10069   31.46905
+symmetry_mean           14.00628   11.75865
+fractal_dimension_mean -39.60761   89.42235
+                       z value Pr(>|z|)    
+(Intercept)             -0.574   0.5662    
+radius_mean             -0.186   0.8528    
+texture_mean             5.285 1.26e-07 ***
+perimeter_mean          -0.515   0.6068    
+area_mean                2.058   0.0396 *  
+smoothness_mean          2.102   0.0356 *  
+compactness_mean        -0.063   0.9497    
+concavity_mean           0.788   0.4307    
+concave_points_mean      2.355   0.0185 *  
+symmetry_mean            1.191   0.2336    
+fractal_dimension_mean  -0.443   0.6578    
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 588.87  on 454  degrees of freedom
+Residual deviance: 119.87  on 444  degrees of freedom
+AIC: 141.87
+
+Number of Fisher Scoring iterations: 9
+
