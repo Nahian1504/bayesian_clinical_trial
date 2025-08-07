@@ -12,7 +12,7 @@ library(readr)
 
 # Load the cleaned data
 
-df_clean <- read_csv("data/real_clinical_trial.csv")
+df_clean <- read_csv("../data/real_clinical_trial.csv")
 
 
 # Test to ensure there are no NA values in the diagnosis column
