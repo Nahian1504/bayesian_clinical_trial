@@ -36,7 +36,11 @@ jobs:
             pandoc \
             texlive-latex-base \
             texlive-fonts-recommended \
-            texlive-latex-extra
+            texlive-latex-extra \
+            libblas-dev \
+            liblapack-dev \
+            gfortran
+            
 
       - name: Cache R packages
         uses: actions/cache@v3
