@@ -113,21 +113,29 @@ jobs:
     name: Deploy to Production
     needs: build-and-push
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/main' && secrets.KUBE_CONFIG != ''
-
+    if: github.ref == 'refs/heads/main'
+    env:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    
     steps:
+      - name: Skip if KUBE_CONFIG is empty
+        if: env.KUBE_CONFIG == ''
+        run: |
+          echo "KUBE_CONFIG is not set. Skipping deployment."
+          exit 0
+    
       - name: Checkout code
         uses: actions/checkout@v4
-
+    
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
-
+    
       - name: Configure kubectl
         run: |
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG" > ~/.kube/config
           chmod 600 ~/.kube/config
-
+    
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s/deployment.yaml --namespace=bayesian-trials
