@@ -7,7 +7,7 @@ library(readr)
 
 # Set the working directory to the location of your data
 
-setwd("E:/bayesian_clinical_trial")  # Ensure this is set to the correct path
+# setwd("E:/bayesian_clinical_trial")  # Ensure this is set to the correct path
 
 
 # Load the cleaned data
