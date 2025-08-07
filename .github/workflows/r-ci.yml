@@ -56,7 +56,7 @@ jobs:
 
       - name: Install R dependencies
         run: |
-          Rscript -e 'install.packages(c("renv", "testthat", "readr", "ggplot2", "yaml", "brms", "caret"))'
+          Rscript -e 'install.packages(c("Matrix", "renv", "testthat", "readr", "ggplot2", "yaml", "brms", "caret"))'
           Rscript -e 'renv::restore()'
 
       - name: Run unit tests
