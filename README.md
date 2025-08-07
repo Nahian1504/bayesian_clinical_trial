@@ -89,3 +89,8 @@ GitHub: @Nahian1504
 MIT License © 2025
 
 ---
+
+## 📞 Contact
+Email: nahian.tasnim@slu.edu.
+
+---
