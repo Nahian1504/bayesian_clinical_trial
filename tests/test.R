@@ -4,7 +4,8 @@ library(caret)
 library(brms)       # or rstanarm if you used it
 
 # Load test data
-test_data <- read.csv("data/test_data.csv")
+library(here)
+test_data <- read.csv(here("data", "test_data.csv"))
 
 # Convert diagnosis to numeric (M = 1, B = 0)
 if (is.character(test_data$diagnosis) || is.factor(test_data$diagnosis)) {
