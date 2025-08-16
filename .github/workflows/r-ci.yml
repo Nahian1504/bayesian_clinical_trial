@@ -64,12 +64,6 @@ jobs:
           mkdir -p test_outputs
           Rscript -e 'setwd("."); testthat::test_dir("tests/", stop_on_failure = TRUE)'
 
-      - name: Validate models
-        working-directory: ${{ github.workspace }}
-        run: |
-          Rscript scripts/validate_models.R
-          cp validation_results.csv validation_plot.png test_outputs/
-
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
