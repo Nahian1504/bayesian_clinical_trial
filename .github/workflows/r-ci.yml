@@ -39,7 +39,9 @@ jobs:
             texlive-latex-extra \
             libblas-dev \
             liblapack-dev \
-            gfortran
+            libopenblas-dev \
+            gfortran \
+            libgmp-dev
             
 
       - name: Cache R packages
