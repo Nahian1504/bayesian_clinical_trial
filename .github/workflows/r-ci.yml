@@ -62,7 +62,7 @@ jobs:
       - name: Run unit tests
         run: |
           mkdir -p test_outputs
-          Rscript -e 'testthat::test_dir("tests/", stop_on_failure = TRUE)'
+          Rscript -e 'setwd("."); testthat::test_dir("tests/", stop_on_failure = TRUE)'
 
       - name: Validate models
         run: |
