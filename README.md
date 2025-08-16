@@ -80,7 +80,6 @@ Clone the repository:
 ## 👤 Author
 
 Nahian Tasnim
-Data Science Portfolio Project — Bayesian Clinical Trial
 GitHub: @Nahian1504
 
 ---
