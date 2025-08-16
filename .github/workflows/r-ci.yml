@@ -117,10 +117,7 @@ jobs:
     name: Deploy to Production
     needs: build-and-push
     runs-on: ubuntu-22.04
-    env:
-        KUBE_CONFIG_SET: ${{ secrets.KUBE_CONFIG != '' }}
-    if: github.ref == 'refs/heads/main' && env.KUBE_CONFIG_SET == 'true'
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -129,7 +126,7 @@ jobs:
         uses: azure/setup-kubectl@v3
 
       - name: Configure kubectl
-        if: env.KUBE_CONFIG_SET == 'true'
+        if: secrets.KUBE_CONFIG != ''
         run: |
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG" > ~/.kube/config
@@ -138,7 +135,7 @@ jobs:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
       - name: Deploy to Kubernetes
-        if: env.KUBE_CONFIG_SET == 'true'
+        if: secrets.KUBE_CONFIG != ''
         run: |
           kubectl apply -f k8s/deployment.yaml --namespace=bayesian-trials
           kubectl rollout status deployment/bayesian-clinical-trial --namespace=bayesian-trials
