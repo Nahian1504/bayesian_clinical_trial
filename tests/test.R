@@ -19,8 +19,9 @@ actual <- factor(test_data$diagnosis, levels = c(0, 1))
 predict_data <- test_data[, !(names(test_data) %in% c("diagnosis"))]
 
 # Load models
-bayes_model <- readRDS("E:/bayesian_clinical_trial/modeling/bayesian_model.rds")
-freq_model  <- readRDS("E:/bayesian_clinical_trial/modeling/frequentist_model.rds")
+library(here)
+bayes_model <- readRDS(here("modeling", "bayesian_model.rds"))
+freq_model  <- readRDS(here("modeling", "frequentist_model.rds"))
 
 # Predict using Bayesian model
 # Use 'type = "response"' for probabilities in brms/rstanarm
