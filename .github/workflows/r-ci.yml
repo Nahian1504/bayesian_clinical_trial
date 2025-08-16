@@ -65,6 +65,7 @@ jobs:
           Rscript -e 'setwd("."); testthat::test_dir("tests/", stop_on_failure = TRUE)'
 
       - name: Validate models
+        working-directory: ${{ github.workspace }}
         run: |
           mkdir -p test_outputs
           Rscript scripts/validate_models.R
