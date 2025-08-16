@@ -113,30 +113,4 @@ jobs:
           build-args: |
             R_VERSION=${{ env.R_VERSION }}
 
-  deploy:
-    name: Deploy to Production
-    needs: build-and-push
-    runs-on: ubuntu-22.04
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Configure kubectl
-        if: secrets.KUBE_CONFIG != ''
-        run: |
-          mkdir -p ~/.kube
-          echo "$KUBE_CONFIG" > ~/.kube/config
-          chmod 600 ~/.kube/config
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Deploy to Kubernetes
-        if: secrets.KUBE_CONFIG != ''
-        run: |
-          kubectl apply -f k8s/deployment.yaml --namespace=bayesian-trials
-          kubectl rollout status deployment/bayesian-clinical-trial --namespace=bayesian-trials
-          kubectl get pods -n bayesian-trials
+  
