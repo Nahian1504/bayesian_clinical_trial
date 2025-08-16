@@ -65,5 +65,7 @@ accuracy_plot <- ggplot(results, aes(x = Model, y = Accuracy, fill = Model)) +
 print(accuracy_plot)
 
 # Save the plot as PNG
-ggsave("E:/bayesian_clinical_trial/tests/accuracy_plot.png", 
+library(here)
+ggsave(here("tests", "accuracy_plot.png"), 
        plot = accuracy_plot, width = 6, height = 4, dpi = 300)
+
