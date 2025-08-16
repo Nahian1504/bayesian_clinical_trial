@@ -67,7 +67,6 @@ jobs:
       - name: Validate models
         working-directory: ${{ github.workspace }}
         run: |
-          mkdir -p test_outputs
           Rscript scripts/validate_models.R
           cp validation_results.csv validation_plot.png test_outputs/
 
