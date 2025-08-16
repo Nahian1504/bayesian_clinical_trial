@@ -127,6 +127,7 @@ jobs:
         uses: azure/setup-kubectl@v3
 
       - name: Configure kubectl
+        if: secrets.KUBE_CONFIG != ''
         run: |
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG" > ~/.kube/config
